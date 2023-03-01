@@ -2,12 +2,69 @@
   text-align: center;
 }
 .App-header {
-  background-color: #282c34;
+  background-color: #313338;
   min-height: 100vh;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  flex-direction: row;
+  align-items: start;
   font-size: calc(10px + 2vmin);
   color: white;
+}
+.App-header > div {
+  aspect-ratio: 1.143;
+  height:min(99vh,calc(100vw - 15em));
+} .App-header > div.TaxCalculator {
+  height:100%;
+}
+
+.App-header > div > div > input[type="button"] {
+  margin-right:5px;
+  margin-left:5px;
+}
+
+h1 {
+  margin:0px;
+}
+
+.TaxCalculator {
+  display:flex;
+  flex-direction: column;
+  align-items: start;
+  width:50%;
+  font-size:xx-large;
+  margin:10px;
+  margin-left:15px;
+}
+.TaxCalculator > * {
+  margin:2px;
+}
+.TaxCalculator > .input {
+  display:flex;
+  flex-direction: row;
+  align-items: center;
+}
+.TaxCalculator > .input > input {
+  font-size:large;
+  padding:0px;
+  padding-top:2px;
+  margin-top:8px;
+}
+.TaxCalculator > .final {
+  font-size:2em;
+}
+
+@media print {
+  .App-header > div {
+    width:0%;
+    opacity:0%;
+  }
+  .App-header > div.TaxCalculator {
+    width:100%;
+    opacity:100%;
+  }
+  .TaxCalculator > .input {
+    max-height:0%;
+    width:0%;
+    opacity:0%;
+  }
 }

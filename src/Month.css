@@ -1,0 +1,32 @@
+.monthlist {
+    width:100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+.day {
+    border-radius: 0.5em;
+    display:flex; flex-direction: column; align-items: center;
+    margin:5px;
+    width: calc(14.285% - 10px);
+    aspect-ratio: 1;
+    background-color: #1e1f22;
+}
+.day > input {
+    width:50%;
+    font-size:medium;
+    color:white;
+    background-color: #121315;
+    border-style: ridge;
+}
+.day.dark {
+    background-color: #121315;
+}
+.weekday {
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    display:inline;
+    margin:5px;
+    width: calc(14.285% - 10px);
+}
