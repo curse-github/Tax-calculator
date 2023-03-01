@@ -6,7 +6,7 @@
   min-height: 100vh;
   display: flex;
   flex-direction: row;
-  align-items: start;
+  align-items: flex-start;
   font-size: calc(10px + 2vmin);
   color: white;
 }
@@ -29,7 +29,7 @@ h1 {
 .TaxCalculator {
   display:flex;
   flex-direction: column;
-  align-items: start;
+  align-items: flex-start;
   width:50%;
   font-size:xx-large;
   margin:10px;
