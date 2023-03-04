@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react';
+import { useSearchParams } from "react-router-dom";
 const FitWh=[
     [0   ,580 ,0 ],
     [580 ,595 ,1 ],
@@ -48,7 +49,13 @@ const OkWh = [
     //[565, inf, 6.40, 4.75]
 
 ]
-function TaxCalculator({sum}) {
+function TaxCalculator({sumfunc}) {
+    const searchParams = useSearchParams()[0];
+    let sum=0;
+    for(let i=0;i<31;i++){
+        const thing = Number(searchParams.get(String(i+1)));
+        sum+=((thing !== null && thing !== undefined && thing > 0) ? thing : 0);
+    }
     const dphRef = useRef();
     const [dph, setDph] = useState(15);
     const beforeTax = sum*dph;

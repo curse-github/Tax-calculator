@@ -1,16 +1,23 @@
+import { useSearchParams } from "react-router-dom";
 import Day from "./Day"
 import './Month.css';
-
-function Month({mon,days,setDays}) {
+function clear(setSearchParams) {
+    let mon = window.location.search.replace("?","").split("&").filter((ele)=>ele.split("=")[0]==="mon")
+    if (mon.length > 0) { mon = mon[0].split("="); } else {mon=[];}
+    if (mon.length > 0) { mon = mon[1]; } else {mon=null;}
+    if (mon !== null && mon !== undefined) { setSearchParams({mon:mon}); } else { setSearchParams({}); }
+}
+function Month({mon}) {
+    const [searchParams, setSearchParams] = useSearchParams();
     var thing = [];
-    for (let i = mon[1]; i > 0; i--) {
-        thing.push(<div className="day dark">{mon[0]-i+1}</div>);
+    for (let i=mon[1];i>0;i--) {
+        thing.push(<div key={"dd1-"+i} className="day dark">{mon[0]-i+1}</div>);
     }
-    for (let i = 0; i < mon[2]; i++) {
-        thing.push(<Day days={days} setDays={setDays} day={i+1} value={days[i]}/>);
+    for (let i=0;i<mon[2];i++) {
+        thing.push(<Day key={"d-"+i} day={i+1} value={(()=>{const thing = Number(searchParams.get(String(i+1))); return (thing !== null && thing !== undefined && thing > 0) ? thing : 0; })()} searchParams={searchParams} setSearchParams={setSearchParams}/>);
     }
-    for (let i = 0; i < 7-((mon[1]+mon[2])%7); i++) {
-        thing.push(<div className="day dark">{i+1}</div>);
+    for (let i=0;i<7-((mon[1]+mon[2])%7);i++) {
+        thing.push(<div key={"dd2-"+i} className="day dark">{i+1}</div>);
     }
     return (<>
         <div className="monthlist">
@@ -23,6 +30,8 @@ function Month({mon,days,setDays}) {
             <div className="weekday">Saturday</div>
         </div>
         <div className="monthlist">{thing}</div>
+        <input type="button" onClick={()=>{clear(setSearchParams);}} value={"Clear"}/>
+        <input type="button" onClick={()=>{navigator.clipboard.writeText(window.location.href);console.log("copied: "+window.location.href)}} value={"Copy link"}/>
     </>)
 }
 export default Month;
