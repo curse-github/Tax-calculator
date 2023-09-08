@@ -49,15 +49,16 @@ const OkWh = [
     //[565, inf, 6.40, 4.75]
 
 ]
-function TaxCalculator({sumfunc}) {
+function TaxCalculator({rate}) {
     const searchParams = useSearchParams()[0];
+    const setSearchParams = useSearchParams()[1];
     let sum=0;
     for(let i=0;i<31;i++){
         const thing = Number(searchParams.get(String(i+1)));
-        sum+=((thing !== null && thing !== undefined && thing > 0) ? thing : 0);
+        if (thing!=null) sum+=thing;
     }
     const dphRef = useRef();
-    const [dph, setDph] = useState(15);
+    const [dph, setDph] = useState(rate);
     const beforeTax = sum*dph;
     const Fit = (()=>{
         for(var i=0;i<FitWh.length;i++) {
@@ -78,7 +79,13 @@ function TaxCalculator({sumfunc}) {
         <div>{sum+" hours total"}</div>
         <div className="input">
             <label>$/hr:</label>
-            <input ref={dphRef} type="number" onChange={()=>{setDph(Number(dphRef.current.value))}} value={dph}></input>
+            <input ref={dphRef} type="number" onChange={()=>{
+                setDph(Number(dphRef.current.value));
+                let params = Object.fromEntries((()=>{var a=window.location.search.replace("?","").split("&").map((ent)=>ent.split("="));return a[0][0]!==""?a:[]})());
+                params["rate"]=dphRef.current.value;
+                console.log(dphRef.current.value);
+                setSearchParams(params);
+            }} value={dph}></input>
         </div>
         <div>{"(" + sum + " hours)*(" + dph + " $/hr) = $" + beforeTax + " before tax"}</div>
         <div>{"Ok between $" + Ok[0] + " and $" + Ok[1] + ":"}</div><div>{"$" + Ok[2] + " + (" + Ok[3] + "% of ($" + beforeTax + " - $" + Ok[0] + ")) = $" + Ok[4]}</div><br/>

@@ -1,8 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
   useSearchParams
 } from "react-router-dom";
 import './App.css';
@@ -28,20 +25,19 @@ function getMonthData(strName) {//console.log(strName)
 
 function App() {
   const [month, setMonth] = useState(curMonth);
+  const [searchParams, setSearchParams] = useSearchParams();
   const monthRef = useRef();
   function IncrementButton({ increment }) {
-    const setSearchParams = useSearchParams()[1];
-    return <input type="button" onClick={()=>{ UpdateMonth(Map[month][1+increment],setSearchParams); }} value={(increment>0?">":"<")}></input>
+    return <input type="button" onClick={()=>{ setMonth(Map[month][1+increment]);UpdateLink(setSearchParams); }} value={(increment>0?">":"<")}></input>
   }
-  function MonthSelector() {
-    const setSearchParams = useSearchParams()[1];
+  function MonthSelector({setSearchParams}) {
     let mon = window.location.search.replace("?","").split("&").filter((ele)=>ele.split("=")[0]==="mon")
     if (mon.length > 0) { mon = mon[0].split("="); } else {mon=[];}
     if (mon.length > 0) { mon = mon[1]; } else {mon=null;}
     if (mon === null || mon === undefined || mon === month) { mon=month }
     
     useEffect(()=>{ setMonth(mon); });
-    return (<select ref={monthRef} onChange={()=>{UpdateMonth(monthRef.current.value,setSearchParams);}} name="Month" id="Month" value={mon}>
+    return (<select ref={monthRef} onChange={()=>{setMonth(monthRef.current.value);UpdateLink(setSearchParams);}} name="Month" id="Month" value={mon}>
       <option value="Jan">Jan</option>
       <option value="Feb">Feb</option>
       <option value="Mar">Mar</option>
@@ -56,34 +52,24 @@ function App() {
       <option value="Dec">Dec</option>
     </select>)
   }
-  function UpdateMonth(value, setSearchParams) {
-    if(month !== value) {
-      setMonth(value)
-      let params = Object.fromEntries((()=>{var a=window.location.search.replace("?","").split("&").map((ent)=>ent.split("="));return a[0][0]!==""?a:[]})()); params["mon"]=value;
-      setSearchParams(params);
-    }
+  function UpdateLink(setSearchParams) {
+    let params = Object.fromEntries((()=>{var a=window.location.search.replace("?","").split("&").map((ent)=>ent.split("="));return a[0][0]!==""?a:[]})());
+    params["mon"]=month;
+    setSearchParams(params);
   }
   return (
-    <Router>
-      <div className="App">
-        <Routes>
-          <Route path="/" element={
             <div>
               <div>
                 <div>
                   <IncrementButton increment={-1}/>
-                  <MonthSelector/>
+                  <MonthSelector setSearchParams={setSearchParams}/>
                   <IncrementButton increment={1}/>
                 </div>
                 <h1>{month + " " + (new Date()).getFullYear()}</h1>
-                <Month mon={getMonthData(month)} setMonth={setMonth}/>
+                <Month mon={getMonthData(month)} searchParams={searchParams} setSearchParams={setSearchParams}/>
               </div>
-              <TaxCalculator/>
+              <TaxCalculator rate={searchParams.get("rate")||15}/>
             </div>
-          }/>
-        </Routes>
-      </div>
-    </Router>
   );
 }
 
