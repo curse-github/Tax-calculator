@@ -32,7 +32,7 @@ function Month({mon}) {
         </div>
         <div className="monthlist">{thing}</div>
         <input type="button" onClick={()=>{clear(setSearchParams);}} value={"Clear"}/>
-        <input type="button" onClick={()=>{navigator.clipboard.writeText(window.location.href);console.log("copied: "+window.location.href)}} value={"Copy link"}/>
+        <input type="button" onClick={()=>{navigator.clipboard.writeText(window.location.href);console.log("Copied: "+window.location.href)}} value={"Copy link"}/>
     </>)
 }
 export default Month;
