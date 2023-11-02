@@ -21,23 +21,27 @@ function getMonthData(strName) {// console.log(strName)
   const daysInMonth     = new Date((new Date()).getFullYear(), months.indexOf(strName)+1, 0).getDate();
   return [daysInLastMonth,daysBefore,daysInMonth]
 }
+var month=0;
 
 function App() {
-  var month = curMonth;
   const [searchParams, setSearchParams] = useSearchParams();
-  const monthRef = useRef();
+
+  month = curMonth;
+  let mon = window.location.search.replace("?","").split("&").filter((ele)=>ele.split("=")[0]==="mon")
+  if (mon.length > 0) { mon = mon[0].split("="); } else {mon=[];}
+  if (mon.length > 0) { mon = mon[1]; } else {mon=null;}
+  if (mon === null || mon === undefined) { mon=month; }
+  month=mon;
+  
   function IncrementButton({ increment }) {
     return <input type="button" onClick={()=>{
       month=months[(months.indexOf(month)+increment+12)%12];
       UpdateLink(setSearchParams);
     }} value={(increment>0?">":"<")}></input>
   }
+
+  const monthRef = useRef();
   function MonthSelector({setSearchParams}) {
-    let mon = window.location.search.replace("?","").split("&").filter((ele)=>ele.split("=")[0]==="mon")
-    if (mon.length > 0) { mon = mon[0].split("="); } else {mon=[];}
-    if (mon.length > 0) { mon = mon[1]; } else {mon=null;}
-    if (mon === null || mon === undefined || mon === month) { mon=month; }
-    useEffect(()=>{ month=mon; });
     return (<select ref={monthRef} onChange={()=>{month=monthRef.current.value; UpdateLink(setSearchParams);}} name="Month" id="Month" value={mon}>
       <option value="Jan">Jan</option>
       <option value="Feb">Feb</option>
