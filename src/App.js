@@ -73,7 +73,7 @@ function App() {
         <h1>{month + " " + (new Date()).getFullYear()}</h1>
         <Month mon={getMonthData(month)} searchParams={searchParams} setSearchParams={setSearchParams}/>
       </div>
-      <TaxCalculator rate={searchParams.get("rate")||15}/>
+      <TaxCalculator rate={searchParams.get("rate")||15} payPers={searchParams.get("pppy")||24}/>
     </div>
   );
 }

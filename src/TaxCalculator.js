@@ -1,55 +1,27 @@
 import React, { useRef, useState } from 'react';
 import { useSearchParams } from "react-router-dom";
-const FitWh=[
-    [0   ,580 ,0 ],
-    [580 ,595 ,1 ],
-    [595 ,610 ,3 ],
-    [610 ,625 ,4 ],
-    [625 ,640 ,6 ],
-    [640 ,655 ,7 ],
-    [655 ,670 ,9 ],
-    [670 ,685 ,10],
-    [685 ,700 ,12],
-    [700 ,715 ,13],
-    [715 ,730 ,15],
-    [730 ,745 ,16],
-    [745 ,760 ,18],
-    [760 ,775 ,19],
-    [775 ,790 ,21],
-    [790 ,805 ,22],
-    [805 ,820 ,24],
-    [820 ,835 ,25],
-    [835 ,850 ,27],
-    [850 ,865 ,28],
-    [865 ,880 ,30],
-    [880 ,895 ,31],
-    [895 ,910 ,33],
-    [910 ,925 ,34],
-    [925 ,940 ,36],
-    [940 ,955 ,37],
-    [955 ,970 ,39],
-    [970 ,985 ,40],
-    [985 ,1000,42],
-    [1000,1015,43],
-    [1015,1030,45],
-    [1030,1045,46],
-    [1045,1060,48],
-    [1060,1075,50],
-    [1075,1090,51],
-    [1090,1105,53],
-    [1105,1120,55]
+//2024 tables
+const FitWh2024=[// https://www.irs.gov/pub/irs-prior/p15t--2024.pdf
+    [ 0     , 6000  , 0  ],// page 11
+    [ 6000  , 17600 , 10 ],
+    [ 17600 , 53150 , 12 ],
+    [ 53150 , 106525, 22 ],
+    [ 106525, 197950, 24 ],
+    [ 197950, 249725, 32 ],
+    [ 249725, 615350, 35 ],
+    [ 615350, 0.1   , 37 ]
 ]
-const OkWh = [
-    [0  , 265, 0   , 0   ],
-    [265, 306, 0   , 0.25],
-    [306, 369, 0.10, 0.75],
-    [369, 421, 0.57, 1.75],
-    [421, 469, 1.48, 2.75],
-    [469, 565, 2.80, 3.75]
-    //[565, inf, 6.40, 4.75]
-
+const OkWh2024 = [// https://oklahoma.gov/content/dam/ok/en/tax/documents/resources/publications/businesses/withholding-tables/WHTables-2024.pdf
+    [0    , 6350 , 0    , 0   ],// page 8
+    [6350 , 7350 , 0    , 0.25],
+    [7350 , 8850 , 2.5  , 0.75],
+    [8850 , 10100, 13.75, 1.75],
+    [10100, 11250, 35.63, 2.75],
+    [11250, 13550, 67.25, 3.75],
+    [13550, 0.1  , 153.5, 4.75]
 ]
-function TaxCalculator({rate}) {
+function roundToCents(num){if (typeof num === "string")return num;else return Math.floor(num*100)/100;}
+function TaxCalculator({rate,payPers}) {
     const searchParams = useSearchParams()[0];
     const setSearchParams = useSearchParams()[1];
     let sum=0;
@@ -59,22 +31,47 @@ function TaxCalculator({rate}) {
     }
     const dphRef = useRef();
     const [dph, setDph] = useState(rate);
+    const ppPyRef = useRef();
+    const [ppPy, setPpPy] = useState(payPers);
+
     const beforeTax = sum*dph;
-    const Fit = (()=>{
-        for(var i=0;i<FitWh.length;i++) {
-            const tx = FitWh[i];
-            if (beforeTax >= tx[0] && beforeTax < tx[1]) return tx;
-        }
-        return [0,0,0];
-    })();
     const Ok = (()=>{
-        for(var i=0;i<OkWh.length;i++) {
-            const tx = OkWh[i];
-            if (beforeTax >= tx[0] && beforeTax < tx[1]) return [tx[0],tx[1],tx[2],tx[3],tx[2]+((beforeTax-tx[0])*(tx[3]/100))];
+        for(var i=0;i<OkWh2024.length-1;i++) {
+            const tx = OkWh2024[i];
+            const greaterThan = tx[0]/ppPy;
+            const lessThan = tx[1]/ppPy;
+            const base = tx[2]/ppPy
+            const percent = tx[3];
+            if (beforeTax >= greaterThan && beforeTax < lessThan) {
+                const amount=base+((beforeTax-greaterThan)*(percent/100));
+                return [greaterThan,lessThan,base,amount];
+            }
         }
-        return [565,"∞",6.40,4.75,6.40+((beforeTax-565)*0.0475)];
+        const tx = OkWh2024[OkWh2024.length-1];// the amount between 615350 to infinity
+        const greaterThan = tx[0]/ppPy;
+        const base = tx[2]/ppPy
+        const percent = tx[3];
+        const amount=base+((beforeTax-greaterThan)*(percent/100));
+        return [greaterThan,"∞",base,percent,amount];
     })();
-    const final = beforeTax-Fit[2]-Ok[4]-(beforeTax*0.0765);
+    const Fit = (()=>{
+        for(var i=0;i<FitWh2024.length-1;i++) {
+            const tx = FitWh2024[i];
+            const greaterThan = tx[0]/ppPy;
+            const lessThan = tx[1]/ppPy;
+            const percent = tx[2];
+            if (beforeTax >= greaterThan && beforeTax < lessThan) {
+                const amount=((beforeTax-greaterThan)*(percent/100));
+                return [greaterThan,lessThan,percent,amount];
+            }
+        }
+        const tx = FitWh2024[FitWh2024.length-1];
+        const greaterThan = tx[0]/ppPy;
+        const percent = tx[2];
+        const amount=((beforeTax-greaterThan)*(percent/100));
+        return [greaterThan,"∞",percent,amount];// the amount between 13550 to infinity
+    })();
+    const final = beforeTax*(1-(0.0145+0.062))-Ok[4]-Fit[3];
     return (<div className="TaxCalculator">
         <div>{sum+" hours total"}</div>
         <div className="input">
@@ -83,17 +80,28 @@ function TaxCalculator({rate}) {
                 setDph(Number(dphRef.current.value));
                 let params = Object.fromEntries((()=>{var a=window.location.search.replace("?","").split("&").map((ent)=>ent.split("="));return a[0][0]!==""?a:[]})());
                 params["rate"]=dphRef.current.value;
-                console.log(dphRef.current.value);
+                //console.log(dphRef.current.value);
                 setSearchParams(params);
             }} value={dph}></input>
         </div>
+        <div className="input">
+            <label>Pay periods per year:</label>
+            <input ref={ppPyRef} type="number" onChange={()=>{
+                setPpPy(Number(ppPyRef.current.value));
+                let params = Object.fromEntries((()=>{var a=window.location.search.replace("?","").split("&").map((ent)=>ent.split("="));return a[0][0]!==""?a:[]})());
+                params["pppy"]=ppPyRef.current.value;
+                //console.log(ppPyRef.current.value);
+                setSearchParams(params);
+            }} value={ppPy}></input>
+        </div>
+        <br></br>
         <div>{"(" + sum + " hours)*(" + dph + " $/hr) = $" + beforeTax + " before tax"}</div>
-        <div>{"Ok between $" + Ok[0] + " and $" + Ok[1] + ":"}</div><div>{"$" + Ok[2] + " + (" + Ok[3] + "% of ($" + beforeTax + " - $" + Ok[0] + ")) = $" + Ok[4]}</div><br/>
-        <div>{"Fit between $" + Fit[0] + " and $" + Fit[1] + ": $" + Fit[2]}</div>
-        <div>{"Med: 1.45% of $" + beforeTax + ": $" + Math.floor(beforeTax*0.0145*100)/100}</div>
-        <div>{"Soc: 6.2% of $" + beforeTax + ": $" + Math.floor(beforeTax*0.062*100)/100}</div>
-        <div>{"Final: $" + beforeTax + " - $" + Fit[2] + " - $" + Ok[4] + " - $" + beforeTax*0.0145 + " - $" + beforeTax*0.062 + ":"}</div>
-        <div className="final">{"$" + Math.floor(final*100)/100}</div>
+        <div>{"Ok between $" + roundToCents(Ok[0]) + " and $" + roundToCents(Ok[1]) + ":"}</div><div>{"$" + roundToCents(Ok[2]) + " + (" + Ok[3] + "% of ($" + beforeTax + " - $" + roundToCents(Ok[0]) + ")) = $" + Ok[4]}</div><br/>
+        <div>{"Fit between $" + roundToCents(Fit[0]) + " and $" + roundToCents(Fit[1]) + ":"}</div><div>{"$(" + Fit[2] + "% of ($" + beforeTax + " - $" + roundToCents(Fit[0]) + ")) = $" + Fit[3]}</div><br/>
+        <div>{"Med: 1.45% of $" + beforeTax + ": $" + roundToCents(beforeTax*0.0145)}</div>
+        <div>{"Soc: 6.2% of $" + beforeTax + ": $" + roundToCents(beforeTax*0.062)}</div>
+        <div>{"Final: $" + beforeTax + " - $" + Fit[3] + " - $" + Ok[4] + " - $" + beforeTax*0.0145 + " - $" + beforeTax*0.062 + ":"}</div>
+        <div className="final">{"$" + roundToCents(final)}</div>
     </div>)
 }
 export default TaxCalculator;
