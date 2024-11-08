@@ -1,2 +1,1 @@
-powershell -Command "npm run build"
-node server.js
+call npm run build
