@@ -1,4 +1,3 @@
-"use strict";
 var pages = {
     "/"                                      :(req, res, send)=>send("/build/index.html"                            ),
     "/index.html"                                      :(req, res, send)=>send("/build/index.html"                  ),
@@ -7,9 +6,9 @@ var pages = {
     "/manifest.json"                         :(req, res, send)=>send("/build/manifest.json"                         ),
     "/asset-manifest.json"                   :(req, res, send)=>send("/build/asset-manifest.json"                   ),
     "/robots.txt"                            :(req, res, send)=>send("/build/robots.txt"                            ),
-    "/static/js/main.e82f8610.js"            :(req, res, send)=>send("/build/static/js/main.e82f8610.js"            ),
-    "/static/js/main.e82f8610.js.LICENSE.txt":(req, res, send)=>send("/build/static/js/main.e82f8610.js.LICENSE.txt"),
-    "/static/js/main.e82f8610.js.map"        :(req, res, send)=>send("/build/static/js/main.e82f8610.js.map"        ),
+    "/static/js/main.2505fb7c.js"            :(req, res, send)=>send("/build/static/js/main.2505fb7c.js"            ),
+    "/static/js/main.2505fb7c.js.LICENSE.txt":(req, res, send)=>send("/build/static/js/main.2505fb7c.js.LICENSE.txt"),
+    "/static/js/main.2505fb7c.js.map"        :(req, res, send)=>send("/build/static/js/main.2505fb7c.js.map"        ),
     "/static/css/main.190dc70d.css"          :(req, res, send)=>send("/build/static/css/main.190dc70d.css"          ),
     "/static/css/main.190dc70d.css.map"      :(req, res, send)=>send("/build/static/css/main.190dc70d.css.map"      ),
     "/vibrate.html"      :(req, res, send)=>send()
